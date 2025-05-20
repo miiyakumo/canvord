@@ -1,14 +1,25 @@
+mod main_functions;
+
+use actix_web::{web, App, HttpServer};
 use futures::executor::block_on;
 use services::*;
-use services::sea_orm::Iden;
+use main_functions::*;
 
 async fn run() {
-    let a = TextItemStorageImpl {}/* value */;
+    let a = TextItemStorageImpl {};
     a.add("111".to_string()).await;
 }
 
-#[tokio::main]
-async fn main() {
-    println!("Hello, world!");
-    block_on(run())
+#[actix_web::main]
+async fn main() -> std::io::Result<()>  {
+    HttpServer::new(|| {
+        App::new().service(
+            // 所有资源与路由加上前缀...
+            web::scope("/app")
+                .configure(apply_database_migration)
+        )
+    })
+        .bind("127.0.0.1:8080")?
+        .run()
+        .await
 }
