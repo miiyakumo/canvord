@@ -1,0 +1,40 @@
+name: canvord
+
+services:
+  canvord-sqldata:
+    image: "mysql:8.0"
+    environment:
+      - MYSQL_ROOT_PASSWORD=Pass@word
+    volumes:
+      - canvord-sqldata:/var/lib/mysql
+    networks:
+      - canvord-network
+    ports:
+      - "35206:3306"
+
+  canvord-textitemapi:
+    image: canvord-textitemapi
+    build:
+      context: .
+      dockerfile: src/contrib/text_item_api/Dockerfile
+    networks:
+      - canvord-network
+    ports:
+      - "35210:8080"
+      - "50001"
+
+networks:
+  canvord-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.16.0/24
+  
+volumes:
+  canvord-sqldata:
+    external: false
+  canvord-rabbitmq-data:
+    external: false
+  canvord-rabbitmq-log:
+    external: false

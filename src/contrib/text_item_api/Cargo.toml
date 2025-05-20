@@ -3,4 +3,11 @@ name = "text_item_api"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = [".", "entity", "migration", "services"]
+
 [dependencies]
+services = {path = "services"}
+futures = "0.3.1"
+tokio = { version = "1.45.0", features = ["rt", "rt-multi-thread", "macros"] }
+tokio-macros = "2.5.0"
