@@ -1,0 +1,10 @@
+target
+.git
+**/*.swp
+**/*.tmp
+.DS_Store
+.cache/
+.devbrain/
+.vscode/
+target/
+**/target
