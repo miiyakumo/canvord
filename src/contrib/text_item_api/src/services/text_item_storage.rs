@@ -2,7 +2,7 @@ use std::str::FromStr;
 use async_trait::async_trait;
 use sea_orm::{ActiveModelTrait, Database, Set};
 use sea_orm::prelude::Uuid;
-use entity::text_item;
+use crate::entity::text_item;
 #[async_trait]
 pub trait TextItemStorage {
     async fn add(&self, text: String) -> String;

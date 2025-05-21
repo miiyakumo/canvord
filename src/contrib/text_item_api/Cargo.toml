@@ -4,11 +4,22 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = [".", "commands", "entity", "migration", "services"]
+members = [".", "migration"]
 
 [dependencies]
-services = {path = "services"}
-futures = "0.3.1"
 actix-web = "4.11.0"
-tokio = { version = "1.45.0", features = ["rt", "rt-multi-thread", "macros"] }
-tokio-macros = "2.5.0"
+async-trait = "0.1.88"
+compose-macro = "0.1.0"
+more-di = "3.1.0"
+sea-orm-migration = "1.1.11"
+serde = { version = "1.0.219", features = ["derive"] }
+
+migration = { path = "migration" }
+
+[dependencies.sea-orm]
+version = "1.1.11"
+features = [
+    "debug-print",
+    "runtime-tokio-rustls",
+    "sqlx-mysql"
+]
