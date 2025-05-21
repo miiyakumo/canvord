@@ -1,11 +1,9 @@
-use di::injectable;
 use sea_orm::DatabaseConnection;
 
 pub trait DatabaseConnectionProvider {
     fn get_connection(&self) -> sea_orm::DatabaseConnection;
 }
 
-#[injectable(DatabaseConnectionProvider)]
 pub struct DatabaseConnectionProviderImpl {
     connection: DatabaseConnection,
 }

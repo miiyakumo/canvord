@@ -23,6 +23,21 @@ services:
       - "35210:8080"
       - "50001"
 
+  canvord-textitemapi-dapr:
+    image: "daprio/daprd:latest"
+    network_mode: "service:canvord-textitemapi"
+    depends_on:
+      - canvord-textitemapi
+    command: [ "./daprd",
+               "-app-id", "canvord-textitemapi",
+               "-app-port", "8080",
+               "-components-path", "/components",
+               "-config", "/configuration/canvord-configuration.yaml" ]
+    volumes:
+      - "./dapr/components/:/components"
+      - "./dapr/configuration/:/configuration"
+    restart: always
+
 networks:
   canvord-network:
     driver: bridge
