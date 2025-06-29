@@ -9,11 +9,16 @@ use apistos::app::{BuildConfig, OpenApiWrapper};
 use apistos::info::Info;
 use apistos::server::Server;
 use apistos::spec::Spec;
-use apistos::web::{get, resource, ServiceConfig};
+use apistos::web::{get, resource, scope, ServiceConfig};
 
 #[api_operation(summary = "say hello")]
 async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
+}
+
+#[api_operation(summary = "not found")]
+async fn not_found() -> impl Responder {
+    HttpResponse::Ok().body("404 Not Found")
 }
 
 #[actix_web::main]
@@ -38,7 +43,7 @@ async fn start() -> std::io::Result<()> {
             .document(api_info())
             .wrap(Logger::default())
             .configure(init)
-            .default_service(web::route().to(hello))
+            .default_service(web::route().to(not_found))
             .build_with(
                 "/openapi.json",
                 BuildConfig::default()
@@ -56,7 +61,7 @@ async fn start() -> std::io::Result<()> {
 }
 
 fn init(cfg: &mut ServiceConfig) {
-    cfg.service(resource("/hello").route(get().to(hello)));
+    cfg.route("/hello", get().to(hello));
 }
 
 pub fn main() {
@@ -89,7 +94,7 @@ fn api_info() -> Spec{
             ..Default::default()
         },
         servers: vec![Server {
-            url: "/api/v3".to_string(),
+            url: "/".to_string(),
             description: Some("Blog Web API Root".to_string()),
             ..Default::default()
         }],
