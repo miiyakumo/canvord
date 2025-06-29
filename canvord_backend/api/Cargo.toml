@@ -12,8 +12,8 @@ actix-rt = "2.10.0"
 dotenvy = "0.15"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-utoipa = { version = "5.4.0", features = ["macros"] }
-utoipa-swagger-ui = "9.0.2"
+apistos = { version = "0.6.0", features = ["extras", "qs_query", "swagger-ui"] }
+schemars = { package = "apistos-schemars", version = "0.8.22", features = ["chrono", "uuid1", "url", "rust_decimal"] }
 canvord-service = { path = "../service" }
 entity = { path = "../entity" }
 migration = { path = "../migration" }

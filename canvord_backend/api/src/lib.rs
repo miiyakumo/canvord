@@ -1,12 +1,17 @@
 use actix_files::Files as Fs;
-use actix_web::{get, middleware, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use migration::{Migrator, MigratorTrait};
 use migration::sea_orm::Database;
-use utoipa::OpenApi;
 use std::env;
-use utoipa_swagger_ui::SwaggerUi;
+use actix_web::middleware::Logger;
+use apistos::{api_operation, SwaggerUIConfig};
+use apistos::app::{BuildConfig, OpenApiWrapper};
+use apistos::info::Info;
+use apistos::server::Server;
+use apistos::spec::Spec;
+use apistos::web::{get, resource, ServiceConfig};
 
-#[get("/hello")]
+#[api_operation(summary = "say hello")]
 async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
 }
@@ -25,17 +30,20 @@ async fn start() -> std::io::Result<()> {
     let server_url = format!("{host}:{port}");
 
     // establish connection to database and apply migrations
-    // -> create post table if not exists
-    println!("{}", db_url.as_str());
     let conn = Database::connect(&db_url).await.unwrap();
     Migrator::up(&conn, None).await.unwrap();
 
     let server = HttpServer::new(move || {
         App::new()
-            .service(Fs::new("/static", "./api/static"))
-            .wrap(middleware::Logger::default()) // enable logger
-            // .default_service(web::route().to(hello))
+            .document(api_info())
+            .wrap(Logger::default())
             .configure(init)
+            .default_service(web::route().to(hello))
+            .build_with(
+                "/openapi.json",
+                BuildConfig::default()
+                    .with(SwaggerUIConfig::new(&"/swagger")))
+            .service(Fs::new("/static", "./api/static"))
     });
 
     println!("Starting server at {server_url}");
@@ -47,8 +55,8 @@ async fn start() -> std::io::Result<()> {
     Ok(())
 }
 
-fn init(cfg: &mut web::ServiceConfig) {
-    cfg.service(hello);
+fn init(cfg: &mut ServiceConfig) {
+    cfg.service(resource("/hello").route(get().to(hello)));
 }
 
 pub fn main() {
@@ -59,6 +67,32 @@ pub fn main() {
     }
 }
 
-#[derive(OpenApi)]
-#[openapi(paths(hello), components(schemas(HelloResponse)))]
-struct ApiDoc;
+fn api_info() -> Spec{
+    Spec {
+        info: Info {
+            title: "Rust Blog Web API".to_string(),
+            description: Some(
+                [
+                    "这是一个基于 Rust 的博客系统后端 API。",
+                    "",
+                    "功能模块包括：",
+                    "- 博客文章的创建、更新、删除与展示",
+                    "- 图片上传和管理",
+                    "- Markdown 渲染",
+                    "- 用户认证与权限校验（JWT）",
+                    "- 日志记录与访问管理",
+                    "",
+                    "本接口文档基于 Apistos 生成。",
+                ].join("\n"),
+            ),
+            version: "v1.0.0".to_string(),
+            ..Default::default()
+        },
+        servers: vec![Server {
+            url: "/api/v3".to_string(),
+            description: Some("Blog Web API Root".to_string()),
+            ..Default::default()
+        }],
+        ..Default::default()
+    }
+}
