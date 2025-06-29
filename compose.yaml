@@ -4,7 +4,8 @@ services:
   canvord-sqldata:
     image: "mysql:8.0"
     environment:
-      - MYSQL_ROOT_PASSWORD=Pass@word
+      - MYSQL_ROOT_PASSWORD=114514
+      - MYSQL_DATABASE=canvord
     volumes:
       - canvord-sqldata:/var/lib/mysql
     networks:
