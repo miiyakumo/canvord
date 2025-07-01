@@ -4,6 +4,7 @@ use apistos::ApiComponent;
 use schemars::JsonSchema;
 use sea_orm::DbErr;
 use thiserror::Error;
+use validator::ValidationError;
 
 #[derive(Debug, Error, JsonSchema, ApiComponent)]
 pub enum AppError {
@@ -46,5 +47,17 @@ impl ResponseError for AppError {
 impl From<DbErr> for AppError {
     fn from(err: DbErr) -> Self {
         AppError::DbError(err.to_string())
+    }
+}
+
+impl From<ValidationError> for AppError {
+    fn from(err: ValidationError) -> Self {
+        AppError::BadRequest(err.to_string())
+    }
+}
+
+impl From<validator::ValidationErrors> for AppError {
+    fn from(err: validator::ValidationErrors) -> Self {
+        AppError::BadRequest(err.to_string())
     }
 }

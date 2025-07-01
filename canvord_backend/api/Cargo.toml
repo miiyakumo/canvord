@@ -14,6 +14,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 apistos = { version = "0.6.0", features = ["extras", "qs_query", "swagger-ui"] }
 schemars = { package = "apistos-schemars", version = "0.8", features = ["chrono", "uuid1", "url", "rust_decimal"] }
+validator = { version = "0.20.0", features = ["derive"] }
 entity = { path = "../entity" }
 dto = { path = "../dto" }
 migration = { path = "../migration" }

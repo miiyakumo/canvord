@@ -1,5 +1,5 @@
 use crate::app_state::AppState;
-use crate::util::handle_api_result;
+use crate::util::{handle_api_result, validate};
 use actix_web::{web, Responder};
 use apistos::web as aweb;
 use apistos::web::ServiceConfig;
@@ -14,6 +14,8 @@ use command::update_article_command::UpdateArticleCommand;
 use entity::article::Status;
 use schemars::JsonSchema;
 use serde::Deserialize;
+use validator::Validate;
+use dto::app_response::AppResponse;
 
 pub fn article_route(cfg: &mut ServiceConfig) {
     cfg.service(
@@ -118,15 +120,21 @@ pub async fn list_articles(
     query: web::Query<ArticlePageParams>,
 ) -> impl Responder {
     let params = query.into_inner();
+    if let Err(e) = validate(&params) {
+        return AppResponse::from_error(&e);
+    }
+    
     handle_api_result(data
         .list_by_status_page
         .execute(params.page, params.per, params.status)
         .await).await
 }
 
-#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+#[derive(Debug, Deserialize, Validate, JsonSchema, ApiComponent)]
 pub struct ArticlePageParams {
+    #[validate(range(min = 1))]
     pub page: u64,
+    #[validate(range(min = 1, max = 100))]
     pub per: u64,
     pub status: Option<Status>,
 }
