@@ -1,15 +1,33 @@
 use sycamore::prelude::*;
-use crate::component::sidebar::Sidebar;
+use sycamore_router::{HistoryIntegration, Router};
+use crate::layout::layout::Layout;
+use crate::route::AppRoutes;
+use crate::view::article_edit_view::ArticleEditView;
+use crate::view::article_view::ArticleView;
+use crate::view::draft_view::DraftView;
+use crate::view::home_view::HomeView;
+use crate::view::not_found_view::NotFoundView;
 
 #[component]
 pub fn App() -> View {
     view! {
-        div(class="flex h-screen") {
-            Sidebar()
-            main(class="flex-1 bg-gray-100 p-6 overflow-auto") {
-                h1(class="text-3xl font-bold mb-4") { "欢迎使用 Sycamore + Tailwind!" }
-                p { "这里是主内容区。" }
-            }
+        Layout {
+            Router(
+                integration = HistoryIntegration::new(),
+                view = |route: ReadSignal<AppRoutes>| {
+                    view! {
+                        div {
+                            (match route.get_clone() {
+                                AppRoutes::Home => HomeView(),
+                                AppRoutes::ArticleList => ArticleView(),
+                                AppRoutes::DraftList => DraftView(),
+                                AppRoutes::ArticleEdit { id } => ArticleEditView(id),
+                                AppRoutes::NotFound => NotFoundView(),
+                            })
+                        }
+                    }
+                }
+            )
         }
     }
 }

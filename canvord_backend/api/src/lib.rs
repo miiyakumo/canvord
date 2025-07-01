@@ -17,6 +17,8 @@ use migration::sea_orm::Database;
 use migration::{Migrator, MigratorTrait};
 use std::env;
 use std::sync::Arc;
+use actix_cors::Cors;
+use actix_web::http::header;
 
 #[actix_web::main]
 async fn start() -> std::io::Result<()> {
@@ -42,6 +44,14 @@ async fn start() -> std::io::Result<()> {
             .app_data(web::Data::new(app_state.clone()))
             .document(api_info())
             .wrap(Logger::default())
+            .wrap(
+                Cors::default()
+                    .allow_any_origin() // 或 .allowed_origin("http://localhost:5173")
+                    .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
+                    .allowed_headers(vec![header::AUTHORIZATION, header::CONTENT_TYPE])
+                    .supports_credentials() // 如果你用 cookie，必须加这个
+                    .max_age(3600),
+            )
             .configure(init)
             .default_service(web::route().to(not_found))
             .build_with(
