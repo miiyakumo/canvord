@@ -1,0 +1,11 @@
+[package]
+name = "handler"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sea-orm = "1.1.12"
+canvord-service = { path = "../service" }
+command = { path = "../command" }
+dto = { path = "../dto" }
+entity = { path = "../entity" }

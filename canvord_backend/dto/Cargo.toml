@@ -1,0 +1,16 @@
+[package]
+name = "dto"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+actix-web = "4.11.0"
+apistos = { version = "0.6.0", features = ["extras", "qs_query", "swagger-ui"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2.0.12"
+schemars = { package = "apistos-schemars", version = "0.8", features = ["chrono", "uuid1", "url", "rust_decimal"] }
+sea-orm = "1.1.12"
+serde = { version = "1.0.219", features = ["derive"] }
+validator = "0.20.0"
+entity = { path = "../entity" }
