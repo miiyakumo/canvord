@@ -16,6 +16,7 @@ use schemars::JsonSchema;
 use serde::Deserialize;
 use validator::Validate;
 use dto::app_response::AppResponse;
+use dto::pagination::PageResult;
 
 pub fn article_route(cfg: &mut ServiceConfig) {
     cfg.service(
@@ -124,10 +125,20 @@ pub async fn list_articles(
         return AppResponse::from_error(&e);
     }
     
-    handle_api_result(data
-        .list_by_status_page
-        .execute(params.page, params.per, params.status)
-        .await).await
+    let handler = &data.list_by_status_page;
+    match handler.execute(params.page, params.per, params.status).await {
+        Ok((articles, total)) => {
+
+            let page_result = PageResult {
+                total: total as usize,
+                current: params.page as usize,
+                size: params.per as usize,
+                data: articles,
+            };
+            AppResponse::ok(page_result)
+        }
+        Err(e) => AppResponse::from_error(&e),
+    }
 }
 
 #[derive(Debug, Deserialize, Validate, JsonSchema, ApiComponent)]
