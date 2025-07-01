@@ -3,4 +3,4 @@ pub mod text_input;
 pub mod article_card;
 pub mod button;
 pub mod confirm_dialog;
-mod pagination;
+pub mod pagination;

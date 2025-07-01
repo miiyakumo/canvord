@@ -31,7 +31,7 @@ pub fn Pagination(
     view! {
         div(class="flex justify-center items-center space-x-2") {
             button(
-                class="px-4 py-2 bg-gray-300 rounded-lg", 
+                class="px-4 py-2 bg-gray-300 rounded-lg",
                 on:click=prev_page,
                 disabled=current_page == 1
             ) { "上一页" }
@@ -39,7 +39,7 @@ pub fn Pagination(
             span(class="px-4 py-2") { (format!("第 {} 页", current_page)) }
 
             button(
-                class="px-4 py-2 bg-gray-300 rounded-lg", 
+                class="px-4 py-2 bg-gray-300 rounded-lg",
                 on:click=next_page,
                 disabled=current_page == total_pages
             ) { "下一页" }
