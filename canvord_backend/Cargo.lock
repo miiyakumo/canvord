@@ -864,10 +864,13 @@ dependencies = [
  "actix-web",
  "apistos",
  "apistos-schemars",
- "canvord-service",
+ "command",
  "dotenvy",
+ "dto",
  "entity",
+ "handler",
  "migration",
+ "sea-orm",
  "serde",
  "serde_json",
 ]
@@ -876,6 +879,7 @@ dependencies = [
 name = "canvord-service"
 version = "0.1.0"
 dependencies = [
+ "command",
  "entity",
  "sea-orm",
 ]
@@ -979,6 +983,18 @@ name = "colorchoice"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
+
+[[package]]
+name = "command"
+version = "0.1.0"
+dependencies = [
+ "apistos",
+ "apistos-schemars",
+ "chrono",
+ "entity",
+ "sea-orm",
+ "serde",
+]
 
 [[package]]
 name = "compact_str"
@@ -1241,6 +1257,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
+name = "dto"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "apistos",
+ "apistos-schemars",
+ "chrono",
+ "entity",
+ "sea-orm",
+ "serde",
+ "thiserror 2.0.12",
+]
+
+[[package]]
 name = "dyn-clone"
 version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1268,6 +1298,7 @@ dependencies = [
 name = "entity"
 version = "0.1.0"
 dependencies = [
+ "apistos-schemars",
  "sea-orm",
  "serde",
 ]
@@ -1611,6 +1642,17 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
+]
+
+[[package]]
+name = "handler"
+version = "0.1.0"
+dependencies = [
+ "canvord-service",
+ "command",
+ "dto",
+ "entity",
+ "sea-orm",
 ]
 
 [[package]]

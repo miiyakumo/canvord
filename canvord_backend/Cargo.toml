@@ -8,4 +8,4 @@ publish = false
 canvord-api = { path = "api" }
 
 [workspace]
-members = [".", "api", "service", "entity", "migration"]
+members = [".", "api", "dto", "service", "entity", "migration", "service", "command", "handler"]

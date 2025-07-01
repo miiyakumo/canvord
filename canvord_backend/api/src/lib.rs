@@ -1,25 +1,22 @@
+mod article_controller;
+mod app_state;
+mod util;
+
+use crate::app_state::AppState;
+use crate::article_controller::article_route;
 use actix_files::Files as Fs;
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
-use migration::{Migrator, MigratorTrait};
-use migration::sea_orm::Database;
-use std::env;
 use actix_web::middleware::Logger;
-use apistos::{api_operation, SwaggerUIConfig};
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use apistos::app::{BuildConfig, OpenApiWrapper};
 use apistos::info::Info;
 use apistos::server::Server;
 use apistos::spec::Spec;
-use apistos::web::{get, resource, scope, ServiceConfig};
-
-#[api_operation(summary = "say hello")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[api_operation(summary = "not found")]
-async fn not_found() -> impl Responder {
-    HttpResponse::Ok().body("404 Not Found")
-}
+use apistos::web::ServiceConfig;
+use apistos::{api_operation, SwaggerUIConfig};
+use migration::sea_orm::Database;
+use migration::{Migrator, MigratorTrait};
+use std::env;
+use std::sync::Arc;
 
 #[actix_web::main]
 async fn start() -> std::io::Result<()> {
@@ -38,8 +35,11 @@ async fn start() -> std::io::Result<()> {
     let conn = Database::connect(&db_url).await.unwrap();
     Migrator::up(&conn, None).await.unwrap();
 
+    let app_state = AppState::new(Arc::from(conn));
+
     let server = HttpServer::new(move || {
         App::new()
+            .app_data(web::Data::new(app_state.clone()))
             .document(api_info())
             .wrap(Logger::default())
             .configure(init)
@@ -61,7 +61,7 @@ async fn start() -> std::io::Result<()> {
 }
 
 fn init(cfg: &mut ServiceConfig) {
-    cfg.route("/hello", get().to(hello));
+    article_route(cfg);
 }
 
 pub fn main() {
@@ -100,4 +100,9 @@ fn api_info() -> Spec{
         }],
         ..Default::default()
     }
+}
+
+#[api_operation(summary = "not found")]
+async fn not_found() -> impl Responder {
+    HttpResponse::Ok().body("404 Not Found")
 }

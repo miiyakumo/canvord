@@ -9,5 +9,6 @@ name = "entity"
 path = "src/lib.rs"
 
 [dependencies]
+schemars = { package = "apistos-schemars", version = "0.8", features = ["chrono", "uuid1", "url", "rust_decimal"] }
 serde = { version = "1", features = ["derive"] }
 sea-orm = "1.1.12"
