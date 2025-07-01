@@ -8,3 +8,5 @@ target
 .vscode/
 target/
 **/target
+**/node_modules
+**/dist

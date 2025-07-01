@@ -6,6 +6,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/canvord_backend/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/canvord_backend/.idea/dataSources" />
+      <excludeFolder url="file://$MODULE_DIR$/canvord_backend/api/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/canvord_backend/entity/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/canvord_frontend/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/canvord_frontend/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
