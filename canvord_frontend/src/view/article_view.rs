@@ -87,7 +87,7 @@ pub fn ArticleView() -> View {
                     bind:value=search_query,
                     class="px-2 py-1 border rounded"
                 )
-                
+
                 // 搜索按钮
                 button(
                     on:click=move |_| search_articles(),
