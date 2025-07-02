@@ -8,7 +8,7 @@ pub fn Sidebar() -> View {
             h2(class="text-xl font-bold mb-4") { "Canvord" }
             SidebarItem(label = "🏠 主页", route = "/")
             SidebarItem(label = "📝 文章", route = "/article")
-            SidebarItem(label = "📁 草稿", route = "/draft")
+            SidebarItem(label = "✍ 撰写", route = "/draft")
         }
     }
 }
