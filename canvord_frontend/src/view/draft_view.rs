@@ -1,3 +1,5 @@
+use monaco::api::CodeEditorOptions;
+use crate::component::editor;
 use sycamore::prelude::*;
 use sycamore::web::wasm_bindgen::JsCast;
 
@@ -8,6 +10,9 @@ pub fn DraftView() -> View {
 
     // Markdown 编辑内容
     let content = create_signal("".to_string());
+
+    let opt = create_signal(CodeEditorOptions::default()
+        .with_language("markdown".to_string()));
 
     // 更新文章内容
     let on_input = move |event: web_sys::Event| {
@@ -23,55 +28,41 @@ pub fn DraftView() -> View {
     // 双屏实时预览
     let preview_content = move || {
         let md_content = content.get_clone();
-        // 使用一个Markdown解析器，例如 `marked` 解析md内容到HTML
-        // marked::marked(md_content)
-        "md"
+        "md" // 这里可以插入 Markdown 到 HTML 的解析逻辑
     };
 
     view! {
-        div(class="relative h-screen w-full") {
-            // 切换按钮，放在右上角
-            button(on:click=move |_| toggle_mode(if mode.get() == 0 { 1 } else { 0 }),
-                class="absolute top-4 right-4 p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
-            ) {
-                "切换模式"
-            }
-
-            // 根据当前模式显示不同的内容
-            (match mode.get() {
-                0 => view!{
-                    div(class="w-full h-full") {
-                        textarea(
-                            bind:value=content,
-                            on:input=on_input,
-                            placeholder="请输入Markdown内容...",
-                            class="w-full h-full p-4 border-2 border-gray-300 rounded-md resize-none",
-                            rows="20"
-                        )
-                    }
-                },
-                1 => view!{
-                    div(class="flex w-full h-full") {
-                        // 编辑器
-                        div(class="w-1/2 pr-4") {
-                            textarea(
-                                bind:value=content,
-                                on:input=on_input,
-                                placeholder="请输入Markdown内容...",
-                                class="w-full h-full p-4 border-2 border-gray-300 rounded-md resize-none",
-                                rows="20"
+        div(class="relative h-screen w-full overflow-hidden") {
+            // 顶栏
+            // 主内容区域
+           div(class="flex w-full h-full") {  // 移除 pt-12，直接填满剩余空间
+                // 根据当前模式显示不同的内容
+                (match mode.get() {
+                    0 => view!{
+                        div(class="w-full h-full") {
+                            editor::Editor(
+                                opt=opt.get_clone(),
                             )
                         }
-                        // 预览
-                        div(class="w-1/2 pl-4") {
-                            div(class="w-full h-full p-4 border-2 border-gray-300 rounded-md overflow-auto") {
+                    },
+                    1 => view!{
+                        div(class="flex w-full h-full space-x-4") {  // 加上间距，使左右两侧内容不挤在一起
+                            // 编辑器
+                            div(class="w-1/2 h-full") {
+                                editor::Editor(
+                                    opt=opt.get_clone(),
+                                )
+                            }
+                            // 预览
+                            div(class="w-1/2 h-full p-4 border-2 border-gray-300 rounded-md overflow-auto") {
                                 (preview_content())
                             }
                         }
-                    }
-                },
-                _ => view!{}
-            })
+                    },
+                    _ => view!{}
+                })
+            }
         }
     }
 }
+

@@ -117,7 +117,6 @@ pub fn ArticleView() -> View {
 
                         view! {
                             div(class="space-y-4") {
-                                // 搜索框和状态选择框的容器，使用 flex 布局
                                 div(class="grid grid-cols-1 md:grid-cols-2 gap-4") {
                                     Indexed(
                                         list = page.data,
@@ -134,10 +133,9 @@ pub fn ArticleView() -> View {
                                     )
                                 }
 
-                                // 分页组件
                                 Pagination(
-                                    total_pages = total_pages.get() as i64, // 总页数
-                                    current_page = current_page.get() as i64, // 当前页数
+                                    total_pages = total_pages.get() as i64,
+                                    current_page = current_page.get() as i64,
                                     page_size = page_size.get() as i64,
                                     on_page_change = Rc::new(on_page_change),
                                     on_size_change = Rc::new(on_size_change),

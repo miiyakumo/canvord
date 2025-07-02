@@ -112,6 +112,7 @@ dependencies = [
  "chrono",
  "gloo-net 0.6.0",
  "log",
+ "monaco",
  "reqwasm",
  "serde",
  "serde_json",
@@ -454,6 +455,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1fa76a2c86f704bdb222d66965fb3d63269ce38518b83cb0575fca855ebb6316"
 dependencies = [
  "adler2",
+]
+
+[[package]]
+name = "monaco"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b8d5a8f26b4282061b05d99ca5d39fae23eda734557bfca12a69b78e6ad73281"
+dependencies = [
+ "js-sys",
+ "paste",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
