@@ -8,11 +8,7 @@ sycamore = { version = "0.9.1", features = ["serde", "suspense"] }
 sycamore-router = "0.9.1"
 gloo-net = "0.6.0"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-reqwasm = "0.5"
-wasm-bindgen-futures = "0.4"
-web-sys = { version = "0.3.77", features = ["Storage", "HtmlSelectElement", "HtmlTextAreaElement"] }
-log = "0.4"
-wasm-logger = "0.2"
+web-sys = { version = "0.3.77", features = ["Storage", "HtmlSelectElement", "HtmlTextAreaElement", "HtmlDocument", "Document"] }
 chrono = { version = "0.4", features = ["serde"] }
 monaco = "0.5"
+pulldown-cmark = "0.13.0"
