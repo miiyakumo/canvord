@@ -4,15 +4,23 @@ use sycamore::prelude::*;
 use sycamore::web::wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
 use js_sys::Reflect;
+use gloo_timers::callback::Interval;
 use sycamore::futures::spawn_local;
 use crate::api::create_article;
 use crate::model::CreateArticleCommand;
 
 #[component]
 pub fn DraftView() -> View {
+    const LOCAL_DRAFT_KEY: &str = "local_draft";
+
+    let initial_content = web_sys::window()
+        .and_then(|win| win.local_storage().ok().flatten())
+        .and_then(|storage| storage.get_item(LOCAL_DRAFT_KEY).ok().flatten())
+        .unwrap_or_else(|| "".to_string());
+
     let opt = CodeEditorOptions::default()
         .with_language("markdown".to_string())
-        .with_value("# Hello Markdown!".to_string());
+        .with_value(initial_content);
 
     let editor = create_signal(None::<CodeEditor>);
 
@@ -21,6 +29,42 @@ pub fn DraftView() -> View {
     let slug = create_signal(String::new());
     let description = create_signal(String::new());
     let category = create_signal(String::new());
+
+    let auto_save_interval = create_signal(None::<Interval>);
+    
+    create_effect(move || {
+        let new_interval = Interval::new(5000, move || {
+            editor.with(|opt| {
+                if let Some(ed) = opt {
+                    if let Some(model) = ed.get_model() {
+                        if let Some(win) = web_sys::window() {
+                            if let Ok(Some(storage)) = win.local_storage() {
+                                let _ = storage.set_item(LOCAL_DRAFT_KEY, &model.get_value());
+                            }
+                        }
+                    }
+                }
+            })
+        });
+        auto_save_interval.set(Some(new_interval));
+    });
+    
+    // 初始化时尝试恢复内容
+    let _restore_on_mount = create_effect(move || {
+        editor.with(|opt| {
+            if let Some(ed) = opt {
+                if let Some(model) = ed.get_model() {
+                    if let Some(win) = web_sys::window() {
+                        if let Ok(Some(storage)) = win.local_storage() {
+                            if let Ok(Some(saved)) = storage.get_item(LOCAL_DRAFT_KEY) {
+                                model.set_value(&saved);
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    });
 
     view! {
         div(class="flex flex-col h-screen") {
@@ -54,12 +98,12 @@ pub fn DraftView() -> View {
                             let title_val = title.get_clone();
                             let desc_val = description.get_clone();
                             let category_val = category.get_clone();
-                    
+
                             editor.with(|editor_val| {
                                 if let Some(ed) = editor_val {
                                     if let Some(model) = ed.get_model() {
                                         let content_val = model.get_value();
-                        
+
                                         let cmd = CreateArticleCommand {
                                             slug: slug_val,
                                             title: title_val,
@@ -67,13 +111,19 @@ pub fn DraftView() -> View {
                                             category: category_val,
                                             content_md: content_val,
                                         };
-                        
+
                                         // 异步调用发布接口
                                         spawn_local(async move {
                                             match create_article(&cmd).await {
                                                 Ok(resp) => {
                                                     web_sys::console::log_1(&format!("发布成功: {:?}", resp.data).into());
                                                     // 可选：弹窗提示、跳转、清空表单等
+                                                    if let Some(window) = web_sys::window() {
+                                                        if let Ok(Some(storage)) = window.local_storage() {
+                                                            let _ = storage.remove_item(LOCAL_DRAFT_KEY);
+                                                            model.set_value("");
+                                                        }
+                                                    }
                                                 }
                                                 Err(err) => {
                                                     web_sys::console::log_1(&format!("发布失败: {}", err).into());
