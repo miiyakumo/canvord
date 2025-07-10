@@ -1,6 +1,7 @@
 mod article_controller;
 mod app_state;
 mod util;
+mod admin_controller;
 
 use crate::app_state::AppState;
 use crate::article_controller::article_route;
@@ -19,6 +20,7 @@ use std::env;
 use std::sync::Arc;
 use actix_cors::Cors;
 use actix_web::http::header;
+use crate::admin_controller::admin_route;
 
 #[actix_web::main]
 async fn start() -> std::io::Result<()> {
@@ -71,6 +73,7 @@ async fn start() -> std::io::Result<()> {
 }
 
 fn init(cfg: &mut ServiceConfig) {
+    admin_route(cfg);
     article_route(cfg);
 }
 
