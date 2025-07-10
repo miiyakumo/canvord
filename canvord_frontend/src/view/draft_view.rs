@@ -8,6 +8,8 @@ use gloo_timers::callback::Interval;
 use sycamore::futures::spawn_local;
 use crate::api::create_article;
 use crate::model::CreateArticleCommand;
+use crate::utils::preview_html::preview_html;
+use crate::utils::show_browser_notification::show_browser_notification;
 
 #[component]
 pub fn DraftView() -> View {
@@ -31,7 +33,7 @@ pub fn DraftView() -> View {
     let category = create_signal(String::new());
 
     let auto_save_interval = create_signal(None::<Interval>);
-    
+
     create_effect(move || {
         let new_interval = Interval::new(5000, move || {
             editor.with(|opt| {
@@ -48,7 +50,7 @@ pub fn DraftView() -> View {
         });
         auto_save_interval.set(Some(new_interval));
     });
-    
+
     // 初始化时尝试恢复内容
     let _restore_on_mount = create_effect(move || {
         editor.with(|opt| {
@@ -113,10 +115,14 @@ pub fn DraftView() -> View {
                                         };
 
                                         // 异步调用发布接口
+                                        let title_for_notification = title.get_clone();
                                         spawn_local(async move {
                                             match create_article(&cmd).await {
-                                                Ok(resp) => {
-                                                    web_sys::console::log_1(&format!("发布成功: {:?}", resp.data).into());
+                                                Ok(_resp) => {
+                                                    show_browser_notification(
+                                                        "发布成功",
+                                                        &format!("文章《{}》已成功保存。", title_for_notification)
+                                                    ).await;
                                                     // 可选：弹窗提示、跳转、清空表单等
                                                     if let Some(window) = web_sys::window() {
                                                         if let Ok(Some(storage)) = window.local_storage() {
@@ -126,7 +132,11 @@ pub fn DraftView() -> View {
                                                     }
                                                 }
                                                 Err(err) => {
-                                                    web_sys::console::log_1(&format!("发布失败: {}", err).into());
+                                                    // 更新失败，显示浏览器通知
+                                                    show_browser_notification(
+                                                        "发布失败",
+                                                        &format!("保存文章时发生错误: {}", err)
+                                                    ).await;
                                                 }
                                             }
                                         });
@@ -187,74 +197,4 @@ pub fn DraftView() -> View {
             Editor(opt=opt, editor=editor)
         }
     }
-}
-
-fn preview_html(_html_output: String) -> String {
-    format!(r#"<!DOCTYPE html>
-               <html lang="cn">
-               <head>
-                   <meta charset="utf-8">
-                   <title>Markdown Preview</title>
-                   <meta name="viewport" content="width=device-width, initial-scale=1">
-                   <style>
-                       body {{
-                           max-width: 768px;
-                           margin: 2rem auto;
-                           padding: 2rem;
-                           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-                           line-height: 1.6;
-                           color: #2e2e2e;
-                           background-color: #fafafa;
-                       }}
-                       h1, h2, h3 {{
-                           border-bottom: 1px solid #eaecef;
-                           padding-bottom: 0.3em;
-                           margin-top: 1.5em;
-                       }}
-                       pre, code {{
-                           background-color: #f6f8fa;
-                           padding: 0.2em 0.4em;
-                           border-radius: 6px;
-                           font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-                       }}
-                       pre {{
-                           padding: 1em;
-                           overflow: auto;
-                       }}
-                       blockquote {{
-                           color: #6a737d;
-                           padding: 0 1em;
-                           border-left: 0.25em solid #dfe2e5;
-                       }}
-                       ul {{
-                           list-style: disc;
-                           margin-left: 2em;
-                       }}
-                       table {{
-                           border-collapse: collapse;
-                       }}
-                       th, td {{
-                           border: 1px solid #dfe2e5;
-                           padding: 6px 13px;
-                       }}
-                       img {{
-                           max-width: 100%;
-                       }}
-                       @media (prefers-color-scheme: dark) {{
-                           body {{
-                               color: #d1d5db;
-                               background-color: #1f2937;
-                           }}
-                           a {{ color: #93c5fd; }}
-                           code, pre {{
-                               background-color: #374151;
-                               color: #f3f4f6;
-                           }}
-                       }}
-                   </style>
-               </head>
-               <body>
-                   {}
-               </body>
-               </html>"#, _html_output)
 }

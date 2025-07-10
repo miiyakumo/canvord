@@ -5,6 +5,7 @@ mod model;
 mod api;
 mod route;
 mod layout;
+mod utils;
 
 use crate::app::App;
 

@@ -126,6 +126,7 @@ dependencies = [
  "sycamore",
  "sycamore-router",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
 ]
 

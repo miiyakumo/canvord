@@ -5,6 +5,7 @@ use std::rc::Rc;
 use sycamore::prelude::*;
 use sycamore::web::wasm_bindgen::JsCast;
 use sycamore::web::{create_client_resource, Suspense};
+use sycamore_router::navigate;
 
 #[component]
 pub fn ArticleView() -> View {
@@ -130,7 +131,7 @@ pub fn ArticleView() -> View {
                                                     ArticleCard(
                                                         article = article.clone(),
                                                         on_click = Box::new(|id| {
-                                                            println!("点击了文章 {}", id);
+                                                            navigate(&*format!("article/edit/{}", id))
                                                         })
                                                     )
                                                 }
