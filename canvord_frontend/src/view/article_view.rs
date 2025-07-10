@@ -10,7 +10,7 @@ use sycamore::web::{create_client_resource, Suspense};
 pub fn ArticleView() -> View {
     // 定义当前页数、每页大小、总页数，和文章状态
     let current_page = create_signal(1);
-    let page_size = create_signal(10);
+    let page_size = create_signal(18);
     let total_pages = create_signal(1); // 可以通过接口获取总页数
     let article_status = create_signal(None);
     let search_query = create_signal(String::new());
@@ -74,83 +74,104 @@ pub fn ArticleView() -> View {
     };
 
     view! {
-        div(class="flex items-center space-x-4") {
-            // 搜索框
-            div {
-                input(
-                    r#type="text",
-                    on:keypress=move |event: web_sys::KeyboardEvent| {
-                        if event.key() == "Enter" {
-                            search_articles();
-                        }
-                    },
-                    bind:value=search_query,
-                    class="px-2 py-1 border rounded"
-                )
-
-                // 搜索按钮
-                button(
-                    on:click=move |_| search_articles(),
-                    class="px-4 py-2 bg-blue-500 text-white rounded"
-                ) { "搜索" }
-            }
-
-            // 文章状态选择框
-            div {
-                select(
-                    on:change= Box::new(on_select_change),
-                    class="px-2 py-1 border rounded"
-                ) {
-                    option(value="") { "全部" }
-                    option(value="Published") { "已发布" }
-                    option(value="Unpublished") { "未发布" }
-                    option(value="Hidden") { "已隐藏" }
+        div(class="p-6 space-y-6") {
+            // 顶部操作栏卡片
+            div(class="bg-white shadow rounded-lg p-4 flex flex-wrap gap-4 items-center") {
+                // 搜索框
+                div(class="flex items-center gap-2") {
+                    input(
+                        r#type="text",
+                        bind:value=search_query,
+                        on:keypress=move |event: web_sys::KeyboardEvent| {
+                            if event.key() == "Enter" {
+                                search_articles();
+                            }
+                        },
+                        class="px-3 py-2 border border-gray-300 rounded w-64",
+                        placeholder="搜索文章标题"
+                    )
+                    button(
+                        on:click=move |_| search_articles(),
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold"
+                    ) {
+                        "搜索"
+                    }
+                }
+    
+                // 状态筛选
+                div {
+                    select(
+                        on:change=Box::new(on_select_change),
+                        class="px-3 py-2 border border-gray-300 rounded text-gray-700"
+                    ) {
+                        option(value="") { "全部状态" }
+                        option(value="Published") { "已发布" }
+                        option(value="Unpublished") { "未发布" }
+                        option(value="Hidden") { "已隐藏" }
+                    }
                 }
             }
-        }
-        Suspense(fallback=|| view! { p { "加载中..." } }) {
-            (if let Some(Some(resp)) = resource.get_clone() {
-                if resp.code == 0 {
-                    if let Some(page) = resp.data {
-                        // 更新总页数
-                        total_pages.set(page.total);
-
-                        view! {
-                            div(class="space-y-4") {
-                                div(class="grid grid-cols-1 md:grid-cols-2 gap-4") {
-                                    Indexed(
-                                        list = page.data,
-                                        view = |article| {
-                                            view! {
-                                                ArticleCard(
-                                                    article = article.clone(),
-                                                    on_click = Box::new(|id| {
-                                                        println!("Article with id {} clicked", id);
-                                                    })
-                                                )
+    
+            // 加载状态 & 主体区域
+            Suspense(fallback=|| view! { p(class="text-center text-gray-500") { "加载中..." } }) {
+                (if let Some(Some(resp)) = resource.get_clone() {
+                    if resp.code == 0 {
+                        if let Some(page) = resp.data {
+                            total_pages.set(page.total);
+    
+                            view! {
+                                div(class="space-y-6") {
+                                    // 文章列表区域
+                                    div(class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3") {
+                                        Indexed(
+                                            list = page.data,
+                                            view = |article| {
+                                                view! {
+                                                    ArticleCard(
+                                                        article = article.clone(),
+                                                        on_click = Box::new(|id| {
+                                                            println!("点击了文章 {}", id);
+                                                        })
+                                                    )
+                                                }
                                             }
-                                        }
-                                    )
+                                        )
+                                    }
+    
+                                    // 分页控件
+                                    div(class="flex justify-center mt-4") {
+                                        Pagination(
+                                            total_pages = total_pages.get() as i64,
+                                            current_page = current_page.get() as i64,
+                                            page_size = page_size.get() as i64,
+                                            on_page_change = Rc::new(on_page_change),
+                                            on_size_change = Rc::new(on_size_change),
+                                        )
+                                    }
                                 }
-
-                                Pagination(
-                                    total_pages = total_pages.get() as i64,
-                                    current_page = current_page.get() as i64,
-                                    page_size = page_size.get() as i64,
-                                    on_page_change = Rc::new(on_page_change),
-                                    on_size_change = Rc::new(on_size_change),
-                                )
+                            }
+                        } else {
+                            view! {
+                                div(class="text-center text-gray-400 text-lg py-6") {
+                                    "暂无文章数据"
+                                }
                             }
                         }
                     } else {
-                        view! { p { "无数据" } }
+                        view! {
+                            div(class="bg-red-100 text-red-700 px-4 py-3 rounded text-center") {
+                                (format!("请求失败：{}", resp.message))
+                            }
+                        }
                     }
                 } else {
-                    view! { p { (format!("错误：{}", resp.message)) } }
-                }
-            } else {
-                view! { p { "加载中或请求失败" } }
-            })
+                    view! {
+                        div(class="text-center text-gray-400 text-lg py-6") {
+                            "加载中或请求失败"
+                        }
+                    }
+                })
+            }
         }
     }
 }

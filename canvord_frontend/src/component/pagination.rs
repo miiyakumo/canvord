@@ -37,7 +37,7 @@ pub fn Pagination(
         move |event: web_sys::Event| {
             if let Some(target) = event.target() {
                 if let Some(select) = target.dyn_into::<web_sys::HtmlSelectElement>().ok() {
-                    let selected_value = select.value().parse::<i64>().unwrap_or(10); // 默认页大小 10
+                    let selected_value = select.value().parse::<i64>().unwrap_or(18); // 默认页大小 10
                     on_size_change(selected_value); // 更新页大小
                 }
             }
@@ -63,11 +63,11 @@ pub fn Pagination(
             span { "每页：" }
             
             select(on:change=change_page_size) {
-                option(value="8", selected=page_size == 8) { "8" }
-                option(value="12", selected=page_size == 12) { "12" }
-                option(value="16", selected=page_size == 16) { "16" }
-                option(value="24", selected=page_size == 24) { "24" }
-                option(value="48", selected=page_size == 48) { "48" }
+                option(value="9", selected=page_size == 9) { "9" }
+                option(value="18", selected=page_size == 18) { "18" }
+                option(value="36", selected=page_size == 36) { "36" }
+                option(value="54", selected=page_size == 54) { "54" }
+                option(value="72", selected=page_size == 72) { "72" }
             }
         }
     }
