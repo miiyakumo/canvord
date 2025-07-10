@@ -102,7 +102,7 @@ pub async fn get_article_by_slug(slug: &str) -> Result<AppResponse<ArticleDetail
     get_json(&format!("{API_BASE}/slug/{}", slug)).await
 }
 
-pub async fn get_article_by_title(title: &str) -> Result<AppResponse<ArticleDetail>, String> {
+pub async fn get_article_by_title(title: &str) -> Result<AppResponse<Vec<ArticleMeta>>, String> {
     get_json(&format!("{API_BASE}/title/{}", title)).await
 }
 

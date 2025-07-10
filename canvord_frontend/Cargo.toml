@@ -28,6 +28,7 @@ web-sys = { version = "0.3.77", features = [
     "HtmlInputElement"
 ]}
 gloo-storage = "0.3.0"
+gloo-console = "0.3.0"
 
 [profile.dev]
 panic = "unwind"
