@@ -1,0 +1,12 @@
+[package]
+name = "canvord_client"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sycamore = { version = "0.9.1", features = ["serde", "suspense"] }
+sycamore-router = "0.9.1"
+gloo-net = "0.6.0"
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+pulldown-cmark = "0.13.0"
