@@ -2,7 +2,7 @@ use sycamore::prelude::*;
 use sycamore_router::{HistoryIntegration, Router};
 use crate::layout::layout::Layout;
 use crate::route::AppRoutes;
-use crate::view::article_edit_view::ArticleEditView;
+use crate::view::edit_view::ArticleEditView;
 use crate::view::article_view::ArticleView;
 use crate::view::draft_view::DraftView;
 use crate::view::home_view::HomeView;
@@ -20,7 +20,7 @@ pub fn App() -> View {
                             (match route.get_clone() {
                                 AppRoutes::Home => HomeView(),
                                 AppRoutes::ArticleList => ArticleView(),
-                                AppRoutes::DraftList => DraftView(),
+                                AppRoutes::Draft => DraftView(),
                                 AppRoutes::ArticleEdit { id } => ArticleEditView(id),
                                 AppRoutes::NotFound => NotFoundView(),
                             })

@@ -1,5 +1,5 @@
 use crate::app_state::AppState;
-use crate::util::{handle_api_result, validate};
+use crate::util::{handle_api_result, validate, JwtAuth};
 use actix_web::{web, Responder};
 use apistos::web as aweb;
 use apistos::web::ServiceConfig;
@@ -21,6 +21,7 @@ use dto::pagination::PageResult;
 pub fn article_route(cfg: &mut ServiceConfig) {
     cfg.service(
         aweb::scope("/articles")
+            .wrap(JwtAuth)
             .route("/create", aweb::post().to(create_article))
             .route("/update", aweb::put().to(update_article))
             .route("/delete", aweb::delete().to(delete_article))

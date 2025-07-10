@@ -4,3 +4,5 @@ pub mod article_card;
 pub mod button;
 pub mod confirm_dialog;
 pub mod pagination;
+pub mod editor;
+pub mod login;

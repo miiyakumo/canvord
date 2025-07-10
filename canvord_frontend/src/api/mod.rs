@@ -1,13 +1,24 @@
 // src/api/mod.rs
-use gloo_net::http::Request;
+pub mod auth;
+
+use gloo_net::http::{Request, RequestBuilder};
 use crate::model::*;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use crate::api::auth::load_token;
 
 const API_BASE: &str = "http://localhost:8000/articles";
 
+// 加 JWT Header（如果存在）
+fn with_auth(mut req: RequestBuilder) -> RequestBuilder {
+    if let Some(token) = load_token() {
+        req = req.header("Authorization", &format!("Bearer {}", token));
+    }
+    req
+}
+
 async fn post_json<T: Serialize, R: DeserializeOwned>(url: &str, body: &T) -> Result<AppResponse<R>, String> {
-    Request::post(url)
+    with_auth(Request::post(url))
         .header("Content-Type", "application/json")
         .json(body)
         .map_err(|e| e.to_string())?
@@ -20,7 +31,7 @@ async fn post_json<T: Serialize, R: DeserializeOwned>(url: &str, body: &T) -> Re
 }
 
 async fn get_json<R: DeserializeOwned>(url: &str) -> Result<AppResponse<R>, String> {
-    Request::get(url)
+    with_auth(Request::get(url))
         .send()
         .await
         .map_err(|e| e.to_string())?
@@ -30,7 +41,7 @@ async fn get_json<R: DeserializeOwned>(url: &str) -> Result<AppResponse<R>, Stri
 }
 
 async fn put_json<T: Serialize, R: DeserializeOwned>(url: &str, body: &T) -> Result<AppResponse<R>, String> {
-    Request::put(url)
+    with_auth(Request::put(url))
         .header("Content-Type", "application/json")
         .json(body)
         .map_err(|e| e.to_string())?
@@ -43,7 +54,7 @@ async fn put_json<T: Serialize, R: DeserializeOwned>(url: &str, body: &T) -> Res
 }
 
 async fn delete_json<T: Serialize, R: DeserializeOwned>(url: &str, body: &T) -> Result<AppResponse<R>, String> {
-    Request::delete(url)
+    with_auth(Request::delete(url))
         .header("Content-Type", "application/json")
         .json(body)
         .map_err(|e| e.to_string())?
@@ -91,7 +102,7 @@ pub async fn get_article_by_slug(slug: &str) -> Result<AppResponse<ArticleDetail
     get_json(&format!("{API_BASE}/slug/{}", slug)).await
 }
 
-pub async fn get_article_by_title(title: &str) -> Result<AppResponse<ArticleDetail>, String> {
+pub async fn get_article_by_title(title: &str) -> Result<AppResponse<Vec<ArticleMeta>>, String> {
     get_json(&format!("{API_BASE}/title/{}", title)).await
 }
 

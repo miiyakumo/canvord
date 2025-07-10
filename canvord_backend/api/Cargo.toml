@@ -8,11 +8,8 @@ publish = false
 actix-web = "4.11.0"
 actix-files = "0.6.6"
 actix-cors = "0.7"
-actix-service = "2.0.3"
-actix-rt = "2.10.0"
 dotenvy = "0.15"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
 apistos = { version = "0.6.0", features = ["extras", "qs_query", "swagger-ui"] }
 schemars = { package = "apistos-schemars", version = "0.8", features = ["chrono", "uuid1", "url", "rust_decimal"] }
 validator = { version = "0.20.0", features = ["derive"] }
@@ -22,3 +19,7 @@ migration = { path = "../migration" }
 command = { path = "../command" }
 handler = { path = "../handler" }
 sea-orm = "1.1.12"
+futures-util = "0.3.31"
+jsonwebtoken = "9"
+chrono = "0.4"
+once_cell = "1.21.3"

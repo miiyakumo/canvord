@@ -12,7 +12,7 @@ pub enum AppRoutes {
     ArticleEdit { id: i64 },
 
     #[to("/draft")]
-    DraftList,
+    Draft,
 
     #[not_found]
     NotFound,
