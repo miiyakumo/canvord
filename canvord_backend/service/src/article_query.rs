@@ -3,6 +3,7 @@ use entity::{article, article::Entity as Article};
 use sea_orm::ColumnTrait;
 use sea_orm::QueryFilter;
 use sea_orm::{DbConn, DbErr, EntityTrait, PaginatorTrait, QueryOrder};
+use entity::article::Status::Published;
 
 pub struct ArticleQuery;
 
@@ -38,5 +39,13 @@ impl ArticleQuery {
         let num_pages = paginator.num_pages().await?;
 
         paginator.fetch_page(page - 1).await.map(|p| (p, num_pages))
+    }
+
+    pub async fn find_publish_article_by_slug(db: &DbConn, slug: String) -> Result<Option<article::Model>, DbErr> {
+        Article::find().filter(Column::Slug.eq(slug).and(Column::Status.eq(Published))).one(db).await
+    }
+
+    pub async fn list_publish_article_by_title(db: &DbConn, title: String) -> Result<Vec<article::Model>, DbErr> {
+        Article::find().filter(Column::Title.like(title).and(Column::Status.eq(Published))).all(db).await
     }
 }

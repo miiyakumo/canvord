@@ -9,3 +9,5 @@ pub mod find_article_by_id_handler;
 pub mod find_article_by_slug_handler;
 pub mod list_article_by_title_handler;
 pub mod list_articles_in_page_by_status_handler;
+pub mod find_publish_article_by_slug_handler;
+pub mod list_publish_article_by_title_handler;

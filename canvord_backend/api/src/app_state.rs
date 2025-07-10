@@ -13,6 +13,8 @@ use handler::{
     publish_draft_handler::PublishDraftHandler,
     save_article_handler::SaveArticleHandler,
     update_article_handler::UpdateArticleHandler,
+    find_publish_article_by_slug_handler::FindPublishArticleBySlugHandler,
+    list_publish_article_by_title_handler::ListPublishArticleByTitleHandler,
 };
 
 #[derive(Clone)]
@@ -28,8 +30,10 @@ pub struct AppState {
     pub save_article: Arc<SaveArticleHandler<'static>>,
     pub find_by_id: Arc<FindArticleByIdHandler<'static>>,
     pub find_by_slug: Arc<FindArticleBySlugHandler<'static>>,
+    pub find_publish_by_slug: Arc<FindPublishArticleBySlugHandler<'static>>,
     pub list_by_title: Arc<ListArticleByTitleHandler<'static>>,
     pub list_by_status_page: Arc<ListArticlesInPageByStatusHandler<'static>>,
+    pub list_publish_by_title: Arc<ListPublishArticleByTitleHandler<'static>>,
 }
 
 impl AppState {
@@ -48,8 +52,10 @@ impl AppState {
             save_article: Arc::new(SaveArticleHandler::new(db_ref)),
             find_by_id: Arc::new(FindArticleByIdHandler::new(db_ref)),
             find_by_slug: Arc::new(FindArticleBySlugHandler::new(db_ref)),
+            find_publish_by_slug: Arc::new(FindPublishArticleBySlugHandler::new(db_ref)),
             list_by_title: Arc::new(ListArticleByTitleHandler::new(db_ref)),
             list_by_status_page: Arc::new(ListArticlesInPageByStatusHandler::new(db_ref)),
+            list_publish_by_title: Arc::new(ListPublishArticleByTitleHandler::new(db_ref)),
         }
     }
 }

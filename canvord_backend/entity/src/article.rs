@@ -2,6 +2,7 @@ use schemars::JsonSchema;
 use sea_orm::entity::prelude::*;
 use sea_orm::{DeleteMany, Set};
 use serde::{Deserialize, Serialize};
+use crate::article::Status::Published;
 
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel, Deserialize, Serialize)]
 #[sea_orm(table_name = "article")]
