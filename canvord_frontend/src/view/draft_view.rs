@@ -5,6 +5,7 @@ use sycamore::web::wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
 use js_sys::Reflect;
 use gloo_timers::callback::Interval;
+use pulldown_cmark::Options;
 use sycamore::futures::spawn_local;
 use crate::api::create_article;
 use crate::model::CreateArticleCommand;
@@ -164,7 +165,7 @@ pub fn DraftView() -> View {
                                 if let Some(ed) = opt {
                                     if let Some(model) = ed.get_model() {
                                         let content = model.get_value();
-                                        let parser = pulldown_cmark::Parser::new(&*content);
+                                        let parser = pulldown_cmark::Parser::new_ext(&*content, Options::all());
                                         let mut html_output = String::new();
                                         pulldown_cmark::html::push_html(&mut html_output, parser);
 

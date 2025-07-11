@@ -1,5 +1,6 @@
 use js_sys::Reflect;
 use monaco::api::{CodeEditor, CodeEditorOptions};
+use pulldown_cmark::Options;
 use sycamore::prelude::*;
 use sycamore::futures::spawn_local;
 use sycamore::web::{create_client_resource, Suspense};
@@ -169,7 +170,7 @@ pub fn ArticleEditView(id: i64) -> View {
                                                     if let Some(ed) = opt {
                                                         if let Some(model) = ed.get_model() {
                                                             let content = model.get_value();
-                                                            let parser = pulldown_cmark::Parser::new(&*content);
+                                                            let parser = pulldown_cmark::Parser::new_ext(&*content, Options::all());
                                                             let mut html_output = String::new();
                                                             pulldown_cmark::html::push_html(&mut html_output, parser);
                     
