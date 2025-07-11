@@ -11,6 +11,8 @@
       <excludeFolder url="file://$MODULE_DIR$/canvord_backend/entity/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/canvord_frontend/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/canvord_frontend/target" />
+      <excludeFolder url="file://$MODULE_DIR$/canvord_client/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/canvord_client/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

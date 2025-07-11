@@ -10,3 +10,11 @@ gloo-net = "0.6.0"
 serde = { version = "1.0", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
 pulldown-cmark = "0.13.0"
+console_error_panic_hook = "0.1"
+web-sys = { version = "0.3", features = ["HtmlSelectElement", "HtmlInputElement"] }
+
+[profile.release]
+panic = "abort" # 默认值。推荐开发阶段改为 "unwind"
+
+[profile.dev]
+panic = "unwind" # 有助于调试
