@@ -48,34 +48,34 @@ pub fn ArticleView(slug: String) -> View {
     });
 
     view! {
-    div(class="min-h-screen bg-[url('/bg.png')] bg-cover bg-fixed bg-center bg-no-repeat text-white flex justify-center px-4 py-8") {
-        (match load_status.get_clone() {
-            LoadStatus::Loading => view! {
-                div(class="text-lg text-neutral-400") { "加载中..." }
-            },
-            LoadStatus::Success => {
-                if let Some(article) = article.get_clone() {
-                    let html: Cow<'static, str> = html_content.get_clone().clone().into();
-                    view! {
-                        div(class="bg-white text-neutral-900 max-w-3xl w-full p-8 rounded-xl shadow-lg bg-opacity-90") {
-                            h1(class="text-3xl font-bold mb-4") { (article.meta.title.clone()) }
-                            p(class="text-xs text-neutral-400 mb-4 italic") {
-                                "最后更新："
-                                (article.meta.last_update.format("%Y-%m-%d %H:%M:%S").to_string())
+        div(class="min-h-screen bg-[url('/bg.webp')] bg-cover bg-fixed bg-center bg-no-repeat text-white flex justify-center px-4 py-8") {
+            (match load_status.get_clone() {
+                LoadStatus::Loading => view! {
+                    div(class="text-lg text-neutral-400") { "加载中..." }
+                },
+                LoadStatus::Success => {
+                    if let Some(article) = article.get_clone() {
+                        let html: Cow<'static, str> = html_content.get_clone().clone().into();
+                        view! {
+                            div(class="bg-white text-neutral-900 max-w-3xl w-full p-8 rounded-xl shadow-lg bg-opacity-90") {
+                                h1(class="text-3xl font-bold mb-4") { (article.meta.title.clone()) }
+                                p(class="text-xs text-neutral-400 mb-4 italic") {
+                                    "最后更新："
+                                    (article.meta.last_update.format("%Y-%m-%d %H:%M:%S").to_string())
+                                }
+                                div(class="prose max-w-none", dangerously_set_inner_html=html)
                             }
-                            div(class="prose max-w-none", dangerously_set_inner_html=html)
                         }
+                    } else {
+                        view! { div() }
                     }
-                } else {
-                    view! { div() }
-                }
-            },
-            LoadStatus::NotFound(err) => view! {
-                div(class="text-lg text-red-400") {
-                    (err)
-                }
-            },
-        })
+                },
+                LoadStatus::NotFound(err) => view! {
+                    div(class="text-lg text-red-400") {
+                        (err)
+                    }
+                },
+            })
+        }
     }
-}
 }
