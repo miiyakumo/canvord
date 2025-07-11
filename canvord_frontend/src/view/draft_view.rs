@@ -118,16 +118,26 @@ pub fn DraftView() -> View {
                                         let title_for_notification = title.get_clone();
                                         spawn_local(async move {
                                             match create_article(&cmd).await {
-                                                Ok(_resp) => {
-                                                    show_browser_notification(
-                                                        "发布成功",
-                                                        &format!("文章《{}》已成功保存。", title_for_notification)
-                                                    ).await;
-                                                    // 可选：弹窗提示、跳转、清空表单等
-                                                    if let Some(window) = web_sys::window() {
-                                                        if let Ok(Some(storage)) = window.local_storage() {
-                                                            let _ = storage.remove_item(LOCAL_DRAFT_KEY);
-                                                            model.set_value("");
+                                                Ok(resp) => {
+                                                    match resp.code {
+                                                        0 => {
+                                                            show_browser_notification(
+                                                                "发布成功",
+                                                                &format!("文章《{}》已成功保存。", title_for_notification)
+                                                            ).await;
+                                                            // 可选：弹窗提示、跳转、清空表单等
+                                                            if let Some(window) = web_sys::window() {
+                                                                if let Ok(Some(storage)) = window.local_storage() {
+                                                                    let _ = storage.remove_item(LOCAL_DRAFT_KEY);
+                                                                    model.set_value("");
+                                                                }
+                                                            }
+                                                        },
+                                                        _ => {
+                                                            show_browser_notification(
+                                                                "发布失败",
+                                                                &format!("{}", resp.message)
+                                                            ).await;
                                                         }
                                                     }
                                                 }
