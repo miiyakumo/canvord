@@ -14,9 +14,9 @@ use crate::util::{handle_api_result, validate};
 pub fn visitor_route(cfg: &mut ServiceConfig) {
     cfg.service(
         aweb::scope("/visitor")
-            .route("/slug/{slug}", aweb::get().to(crate::article_controller::find_article_by_slug))
-            .route("/title/{title}", aweb::get().to(crate::article_controller::list_article_by_title))
-            .route("/page", aweb::get().to(crate::article_controller::list_articles))
+            .route("/slug/{slug}", aweb::get().to(find_article_by_slug))
+            .route("/title/{title}", aweb::get().to(list_article_by_title))
+            .route("/page", aweb::get().to(list_articles))
     );
 }
 
