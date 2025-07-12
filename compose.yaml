@@ -13,6 +13,46 @@ services:
     ports:
       - "33306:3306"
 
+  canvord-backend:
+    build:
+      context: .
+      dockerfile: canvord_backend/Dockerfile
+    depends_on:
+      - canvord-sqldata
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DATABASE_URL=mysql://root:114514@canvord-sqldata:3306/canvord
+      - JWT_SECRET=my_super_secret
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=123456
+    networks:
+      - canvord-network
+    ports:
+      - "8000:8000"
+
+  canvord-frontend:
+    build:
+      context: .
+      dockerfile: canvord_frontend/Dockerfile
+    networks:
+      - canvord-network
+    ports:
+      - "8081:80"
+    depends_on:
+      - canvord-backend
+
+  canvord-client:
+    build:
+      context: .
+      dockerfile: canvord_client/Dockerfile
+    networks:
+      - canvord-network
+    ports:
+      - "8082:80"
+    depends_on:
+      - canvord-backend
+
 
 networks:
   canvord-network:
