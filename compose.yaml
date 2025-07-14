@@ -23,6 +23,7 @@ services:
       - HOST=0.0.0.0
       - PORT=8000
       - DATABASE_URL=mysql://root:114514@canvord-sqldata:3306/canvord
+      - REDIS_URL=redis://canvord-redis:6379
       - JWT_SECRET=my_super_secret
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=123456
