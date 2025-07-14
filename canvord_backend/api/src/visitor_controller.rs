@@ -17,15 +17,25 @@ pub fn visitor_route(cfg: &mut ServiceConfig, redis_client: redis::Client) {
         aweb::scope("/visitor")
             .wrap(
                 CacheMiddleware::new(redis_client)
-                .with_ttl(666)
+                    .with_ttl(666)
                     .with_key_gen(|req| {
-                        let path = req.path(); // 请求路径，例如 /visitor/page
-                        let query = req.query_string(); // 查询参数，例如 ?page=1&status=Published
-                        if query.is_empty() {
-                            path.to_string()
-                        } else {
-                            format!("{}?{}", path, query)
+                        let uri = req.uri();
+                        let path = uri.path();
+                        let mut key = path.to_string();
+            
+                        if let Some(query) = uri.query() {
+                            // 只保留有效的 k=v 格式参数
+                            let valid_params: Vec<_> = query
+                                .split('&')
+                                .filter(|s| s.contains('=') && s.split('=').count() == 2)
+                                .collect();
+                            if !valid_params.is_empty() {
+                                key.push('?');
+                                key.push_str(&valid_params.join("&"));
+                            }
                         }
+            
+                        key
                     })
             )
             .route("/slug/{slug}", aweb::get().to(find_article_by_slug))

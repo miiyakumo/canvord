@@ -28,7 +28,7 @@ async fn start() -> std::io::Result<()> {
     unsafe {
         env::set_var("RUST_LOG", "debug");
     }
-
+    env_logger::init();
     // get env vars
     dotenvy::dotenv().ok();
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
@@ -63,8 +63,12 @@ async fn start() -> std::io::Result<()> {
             )
             .configure(|cfg| {
                 init_route(cfg, redis_client.clone());
-            }).
-            build_with(
+            })
+            .default_service(web::route().to(|| async {
+                HttpResponse::Ok().body("404 Not Found")
+            }))
+            // .service(Fs::new("/static", "./api/static"))
+            .build_with(
                     "/openapi.json",
                     BuildConfig::default()
                         .with(SwaggerUIConfig::new(&"/swagger")))
@@ -83,11 +87,6 @@ fn init_route(cfg: &mut ServiceConfig, redis_client: redis::Client) {
     admin_route(cfg);
     article_route(cfg);
     visitor_route(cfg, redis_client);
-
-    let cfg = unsafe { &mut *(cfg as *mut _ as *mut web::ServiceConfig) };
-    cfg.default_service(web::route().to(|| async {
-        HttpResponse::Ok().body("404 Not Found")
-    })).service(Fs::new("/static", "./api/static"));
 }
 
 pub fn main() {
