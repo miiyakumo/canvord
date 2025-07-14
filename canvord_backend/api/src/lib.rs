@@ -9,21 +9,18 @@ use crate::app_state::AppState;
 use crate::article_controller::article_route;
 use actix_files::Files as Fs;
 use actix_web::middleware::Logger;
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, HttpResponse, HttpServer};
 use apistos::app::{BuildConfig, OpenApiWrapper};
-use apistos::info::Info;
-use apistos::server::Server;
-use apistos::spec::Spec;
 use apistos::web::ServiceConfig;
-use apistos::{api_operation, SwaggerUIConfig};
+use apistos::SwaggerUIConfig;
 use migration::sea_orm::Database;
 use migration::{Migrator, MigratorTrait};
 use std::env;
 use std::sync::Arc;
 use actix_cors::Cors;
 use actix_web::http::header;
-use middleware::cache::CacheMiddleware;
 use crate::admin_controller::admin_route;
+use crate::api_info::api_info;
 use crate::visitor_controller::visitor_route;
 
 #[actix_web::main]
@@ -40,17 +37,21 @@ async fn start() -> std::io::Result<()> {
     let port = env::var("PORT").expect("PORT is not set in .env file");
     let server_url = format!("{host}:{port}");
 
+    // let enable_swagger = env::var("ENABLE_SWAGGER")
+    //     .unwrap_or_else(|_| "false".into())
+    //     .to_lowercase() == "true";
+    
     // establish connection to database and apply migrations
     let conn = Database::connect(&db_url).await.unwrap();
     let redis_client = redis::Client::open(redis_url.clone()).unwrap();
     Migrator::up(&conn, None).await.unwrap();
 
-    let app_state = AppState::new(Arc::from(conn), redis_client);
+    let app_state = AppState::new(Arc::from(conn), redis_client.clone());
 
     let server = HttpServer::new(move || {
-        App::new()
-            .app_data(web::Data::new(app_state.clone()))
+        actix_web::App::new()
             .document(api_info())
+            .app_data(web::Data::new(app_state.clone()))
             .wrap(Logger::default())
             .wrap(
                 Cors::default()
@@ -60,13 +61,13 @@ async fn start() -> std::io::Result<()> {
                     .supports_credentials() // 如果你用 cookie，必须加这个
                     .max_age(3600),
             )
-            .configure(init)
-            .default_service(web::route().to(not_found))
-            .build_with(
-                "/openapi.json",
-                BuildConfig::default()
-                    .with(SwaggerUIConfig::new(&"/swagger")))
-            .service(Fs::new("/static", "./api/static"))
+            .configure(|cfg| {
+                init_route(cfg, redis_client.clone());
+            }).
+            build_with(
+                    "/openapi.json",
+                    BuildConfig::default()
+                        .with(SwaggerUIConfig::new(&"/swagger")))
     });
 
     println!("Starting server at {server_url}");
@@ -78,10 +79,15 @@ async fn start() -> std::io::Result<()> {
     Ok(())
 }
 
-fn init(cfg: &mut ServiceConfig) {
+fn init_route(cfg: &mut ServiceConfig, redis_client: redis::Client) {
     admin_route(cfg);
     article_route(cfg);
-    visitor_route(cfg);
+    visitor_route(cfg, redis_client);
+
+    let cfg = unsafe { &mut *(cfg as *mut _ as *mut web::ServiceConfig) };
+    cfg.default_service(web::route().to(|| async {
+        HttpResponse::Ok().body("404 Not Found")
+    })).service(Fs::new("/static", "./api/static"));
 }
 
 pub fn main() {
@@ -90,39 +96,4 @@ pub fn main() {
     if let Some(err) = result.err() {
         println!("Error: {err}");
     }
-}
-
-fn api_info() -> Spec{
-    Spec {
-        info: Info {
-            title: "Rust Blog Web API".to_string(),
-            description: Some(
-                [
-                    "这是一个基于 Rust 的博客系统后端 API。",
-                    "",
-                    "功能模块包括：",
-                    "- 博客文章的创建、更新、删除与展示",
-                    "- 图片上传和管理",
-                    "- Markdown 渲染",
-                    "- 用户认证与权限校验（JWT）",
-                    "- 日志记录与访问管理",
-                    "",
-                    "本接口文档基于 Apistos 生成。",
-                ].join("\n"),
-            ),
-            version: "v1.0.0".to_string(),
-            ..Default::default()
-        },
-        servers: vec![Server {
-            url: "/".to_string(),
-            description: Some("Blog Web API Root".to_string()),
-            ..Default::default()
-        }],
-        ..Default::default()
-    }
-}
-
-#[api_operation(summary = "not found")]
-async fn not_found() -> impl Responder {
-    HttpResponse::Ok().body("404 Not Found")
 }

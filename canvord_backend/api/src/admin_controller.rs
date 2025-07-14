@@ -1,5 +1,5 @@
 use std::env;
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{web, Responder};
 use apistos::{web as aweb, ApiComponent};
 use apistos::api_operation;
 use apistos::web::ServiceConfig;

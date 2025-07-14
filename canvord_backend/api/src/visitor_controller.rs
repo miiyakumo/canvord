@@ -8,12 +8,26 @@ use validator::Validate;
 use dto::app_response::AppResponse;
 use dto::pagination::PageResult;
 use entity::article::Status;
+use middleware::cache::CacheMiddleware;
 use crate::app_state::AppState;
 use crate::util::{handle_api_result, validate};
 
-pub fn visitor_route(cfg: &mut ServiceConfig) {
+pub fn visitor_route(cfg: &mut ServiceConfig, redis_client: redis::Client) {
     cfg.service(
         aweb::scope("/visitor")
+            .wrap(
+                CacheMiddleware::new(redis_client)
+                .with_ttl(666)
+                    .with_key_gen(|req| {
+                        let path = req.path(); // 请求路径，例如 /visitor/page
+                        let query = req.query_string(); // 查询参数，例如 ?page=1&status=Published
+                        if query.is_empty() {
+                            path.to_string()
+                        } else {
+                            format!("{}?{}", path, query)
+                        }
+                    })
+            )
             .route("/slug/{slug}", aweb::get().to(find_article_by_slug))
             .route("/title/{title}", aweb::get().to(list_article_by_title))
             .route("/page", aweb::get().to(list_articles))
