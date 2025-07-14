@@ -1,6 +1,6 @@
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
-
+use redis::Client;
 use handler::{
     create_article_handler::CreateArticleHandler,
     delete_article_handler::DeleteArticleHandler,
@@ -20,6 +20,7 @@ use handler::{
 #[derive(Clone)]
 pub struct AppState {
     pub db: Arc<DatabaseConnection>,
+    pub redis_client: Client,
 
     pub create_article: Arc<CreateArticleHandler<'static>>,
     pub update_article: Arc<UpdateArticleHandler<'static>>,
@@ -37,12 +38,13 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(db: Arc<DatabaseConnection>) -> Self {
+    pub fn new(db: Arc<DatabaseConnection>, redis_client: Client) -> Self {
         // NOTE: 用 `'static` 其实是因为 actix-web 的要求：必须线程安全 + 生命周期长。
         let db_ref: &'static DatabaseConnection = unsafe { std::mem::transmute::<&DatabaseConnection, &'static DatabaseConnection>(&*db) };
 
         Self {
             db,
+            redis_client,
             create_article: Arc::new(CreateArticleHandler::new(db_ref)),
             update_article: Arc::new(UpdateArticleHandler::new(db_ref)),
             delete_article: Arc::new(DeleteArticleHandler::new(db_ref)),

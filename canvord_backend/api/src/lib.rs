@@ -3,6 +3,7 @@ mod app_state;
 mod util;
 mod admin_controller;
 mod visitor_controller;
+mod api_info;
 
 use crate::app_state::AppState;
 use crate::article_controller::article_route;
@@ -21,6 +22,7 @@ use std::env;
 use std::sync::Arc;
 use actix_cors::Cors;
 use actix_web::http::header;
+use middleware::cache::CacheMiddleware;
 use crate::admin_controller::admin_route;
 use crate::visitor_controller::visitor_route;
 
@@ -33,15 +35,17 @@ async fn start() -> std::io::Result<()> {
     // get env vars
     dotenvy::dotenv().ok();
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+    let redis_url = env::var("REDIS_URL").expect("REDIS_URL is not set in .env file");
     let host = env::var("HOST").expect("HOST is not set in .env file");
     let port = env::var("PORT").expect("PORT is not set in .env file");
     let server_url = format!("{host}:{port}");
 
     // establish connection to database and apply migrations
     let conn = Database::connect(&db_url).await.unwrap();
+    let redis_client = redis::Client::open(redis_url.clone()).unwrap();
     Migrator::up(&conn, None).await.unwrap();
 
-    let app_state = AppState::new(Arc::from(conn));
+    let app_state = AppState::new(Arc::from(conn), redis_client);
 
     let server = HttpServer::new(move || {
         App::new()

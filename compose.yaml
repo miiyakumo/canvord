@@ -53,6 +53,15 @@ services:
     depends_on:
       - canvord-backend
 
+  canvord-redis:
+    image: redis:8.0
+    container_name: canvord-redis
+    restart: always
+    ports:
+      - "26379:6379"
+    networks:
+      - canvord-network
+
 
 networks:
   canvord-network:

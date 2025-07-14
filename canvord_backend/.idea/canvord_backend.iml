@@ -11,6 +11,7 @@
       <sourceFolder url="file://$MODULE_DIR$/dto/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/command/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/handler/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/middleware/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/entity/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
